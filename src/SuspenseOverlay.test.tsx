@@ -174,11 +174,9 @@ describe('SuspenseOverlay (snapshot mode)', () => {
 
   it('shows snapshot with overlay when children suspend after initial render', () => {
     let suspended = false;
-    let resolve: () => void;
-
     const SuspendingComponent = () => {
       if (suspended) {
-        throw new Promise<void>((r) => { resolve = r; });
+        throw new Promise<void>(() => {});
       }
       return <div data-testid="real-content">Real Content</div>;
     };
@@ -212,7 +210,7 @@ describe('SuspenseOverlay (snapshot mode)', () => {
       throw new Promise(() => {});
     };
 
-    const { container } = render(
+    render(
       <SuspenseOverlay overlay={<div>Loading...</div>}>
         <LazyComponent />
       </SuspenseOverlay>,

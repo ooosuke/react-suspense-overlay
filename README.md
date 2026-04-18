@@ -131,6 +131,16 @@ A hook that captures DOM snapshots via `MutationObserver`. Returns a ref contain
 - **Zero dependencies** — Only React 18+ as peer dependency
 - **Tree-shakeable** — ESM + CJS dual output
 
+## Demo
+
+```bash
+cd demo
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 to see both **Pending Mode** and **Snapshot Mode** in action.
+
 ## License
 
 MIT

@@ -74,6 +74,7 @@ export function SuspenseOverlay({
   // Snapshot mode
   const snapshotFallback = (
     <SnapshotFallback
+      // eslint-disable-next-line react-hooks/refs -- intentional: read last captured snapshot for Suspense fallback
       html={snapshotRef.current}
       overlay={overlay}
       animationDuration={animationDuration}

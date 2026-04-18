@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Captures a snapshot of the DOM content via MutationObserver.
@@ -7,12 +7,6 @@ import { useEffect, useRef, useCallback } from 'react';
  */
 export function useSnapshot(contentRef: React.RefObject<HTMLDivElement | null>) {
   const snapshotRef = useRef('');
-
-  const capture = useCallback(() => {
-    if (contentRef.current) {
-      snapshotRef.current = contentRef.current.innerHTML;
-    }
-  }, [contentRef]);
 
   useEffect(() => {
     const el = contentRef.current;

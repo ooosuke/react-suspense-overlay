@@ -11,25 +11,21 @@ export function useDelayedPending(pending: boolean, delay: number): boolean {
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    if (pending) {
-      if (delay <= 0) {
-        setDelayedPending(true);
-        return;
-      }
-      timerRef.current = setTimeout(() => {
-        setDelayedPending(true);
-      }, delay);
-    } else {
-      setDelayedPending(false);
-    }
+    if (delay <= 0 || !pending) return;
+
+    timerRef.current = setTimeout(() => {
+      setDelayedPending(true);
+    }, delay);
 
     return () => {
       if (timerRef.current !== undefined) {
         clearTimeout(timerRef.current);
         timerRef.current = undefined;
       }
+      setDelayedPending(false);
     };
   }, [pending, delay]);
 
+  if (delay <= 0) return pending;
   return delayedPending;
 }
