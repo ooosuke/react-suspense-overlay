@@ -133,6 +133,10 @@ A hook that captures DOM snapshots via `MutationObserver`. Returns a ref contain
 
 ## Demo
 
+**[Live Demo](https://ooosuke.github.io/react-suspense-overlay/)**
+
+Or run locally:
+
 ```bash
 cd demo
 npm install
