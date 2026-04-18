@@ -69,4 +69,20 @@ describe('useDelayedPending', () => {
     const { result } = renderHook(() => useDelayedPending(true, 0));
     expect(result.current).toBe(true);
   });
+
+  it('does not flash off when delay changes while pending and overlay is shown', () => {
+    const { result, rerender } = renderHook(
+      ({ pending, delay }) => useDelayedPending(pending, delay),
+      { initialProps: { pending: true, delay: 200 } },
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+    expect(result.current).toBe(true);
+
+    // Change delay while pending — overlay must stay visible
+    rerender({ pending: true, delay: 300 });
+    expect(result.current).toBe(true);
+  });
 });

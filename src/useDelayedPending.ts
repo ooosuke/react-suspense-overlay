@@ -10,19 +10,22 @@ export function useDelayedPending(pending: boolean, delay: number): boolean {
   const [delayedPending, setDelayedPending] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  // Reset immediately when pending becomes false (setState-during-render pattern)
+  // https://react.dev/reference/react/useState#updating-state-based-on-the-previous-rendering
+  if (!pending && delayedPending) {
+    setDelayedPending(false);
+  }
+
   useEffect(() => {
-    if (delay <= 0 || !pending) return;
+    if (!pending || delay <= 0) return;
 
     timerRef.current = setTimeout(() => {
       setDelayedPending(true);
     }, delay);
 
     return () => {
-      if (timerRef.current !== undefined) {
-        clearTimeout(timerRef.current);
-        timerRef.current = undefined;
-      }
-      setDelayedPending(false);
+      clearTimeout(timerRef.current);
+      timerRef.current = undefined;
     };
   }, [pending, delay]);
 
