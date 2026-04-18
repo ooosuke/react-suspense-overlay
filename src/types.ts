@@ -7,7 +7,11 @@ export interface SuspenseOverlayProps {
   overlay?: ReactNode;
   /** Fallback for the initial Suspense load (before any UI exists) */
   fallback?: ReactNode;
-  /** External pending state from useTransition */
+  /**
+   * External pending state (e.g. from useTransition, isFetching).
+   * When provided, enables "pending mode" — overlay shown on live UI.
+   * When omitted, enables "snapshot mode" — DOM snapshot preserved on suspend.
+   */
   pending?: boolean;
   /**
    * Delay in ms before showing the overlay.

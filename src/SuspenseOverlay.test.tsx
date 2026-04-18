@@ -136,17 +136,134 @@ describe('SuspenseOverlay', () => {
     expect(contentWrapper.style.pointerEvents).not.toBe('none');
   });
 
-  it('renders Suspense fallback for initial load', () => {
+  it('renders Suspense fallback for initial load (pending mode)', () => {
     const LazyComponent = () => {
       throw new Promise(() => {});
     };
 
     render(
-      <SuspenseOverlay fallback={<div>Initial loading...</div>}>
+      <SuspenseOverlay pending={false} fallback={<div>Initial loading...</div>}>
         <LazyComponent />
       </SuspenseOverlay>,
     );
 
     expect(screen.getByText('Initial loading...')).toBeInTheDocument();
+  });
+});
+
+describe('SuspenseOverlay (snapshot mode)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  it('renders children normally when not suspended', () => {
+    render(
+      <SuspenseOverlay overlay={<div>Loading...</div>}>
+        <div>Content</div>
+      </SuspenseOverlay>,
+    );
+
+    expect(screen.getByText('Content')).toBeInTheDocument();
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
+
+  it('shows snapshot with overlay when children suspend after initial render', () => {
+    let suspended = false;
+    let resolve: () => void;
+
+    const SuspendingComponent = () => {
+      if (suspended) {
+        throw new Promise<void>((r) => { resolve = r; });
+      }
+      return <div data-testid="real-content">Real Content</div>;
+    };
+
+    const { rerender } = render(
+      <SuspenseOverlay overlay={<div>Loading...</div>}>
+        <SuspendingComponent />
+      </SuspenseOverlay>,
+    );
+
+    expect(screen.getByTestId('real-content')).toBeInTheDocument();
+
+    // Trigger suspend
+    suspended = true;
+    rerender(
+      <SuspenseOverlay overlay={<div>Loading...</div>}>
+        <SuspendingComponent />
+      </SuspenseOverlay>,
+    );
+
+    // Snapshot fallback should show the old HTML + overlay
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // The snapshot should contain the old content as static HTML
+    // (React may also keep the original DOM hidden, so use getAllBy)
+    const elements = screen.getAllByText('Real Content');
+    expect(elements.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows nothing when children suspend on initial render with no snapshot', () => {
+    const LazyComponent = () => {
+      throw new Promise(() => {});
+    };
+
+    const { container } = render(
+      <SuspenseOverlay overlay={<div>Loading...</div>}>
+        <LazyComponent />
+      </SuspenseOverlay>,
+    );
+
+    // No snapshot available, SnapshotFallback returns null
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
+
+  it('uses fallback prop on initial suspend when no snapshot exists', () => {
+    const LazyComponent = () => {
+      throw new Promise(() => {});
+    };
+
+    render(
+      <SuspenseOverlay
+        overlay={<div>Loading...</div>}
+        fallback={<div>Skeleton</div>}
+      >
+        <LazyComponent />
+      </SuspenseOverlay>,
+    );
+
+    // No snapshot available, so SnapshotFallback renders the fallback children
+    expect(screen.getByText('Skeleton')).toBeInTheDocument();
+  });
+
+  it('sets aria-busy on snapshot fallback', () => {
+    let suspended = false;
+
+    const SuspendingComponent = () => {
+      if (suspended) {
+        throw new Promise(() => {});
+      }
+      return <div>Content</div>;
+    };
+
+    const { rerender } = render(
+      <SuspenseOverlay overlay={<div>Loading...</div>}>
+        <SuspendingComponent />
+      </SuspenseOverlay>,
+    );
+
+    suspended = true;
+    rerender(
+      <SuspenseOverlay overlay={<div>Loading...</div>}>
+        <SuspendingComponent />
+      </SuspenseOverlay>,
+    );
+
+    const busyEl = screen.getByText('Loading...').closest('[aria-busy]');
+    expect(busyEl).toHaveAttribute('aria-busy', 'true');
   });
 });
