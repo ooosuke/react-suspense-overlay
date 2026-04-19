@@ -15,8 +15,12 @@ export function useSnapshot(contentRef: React.RefObject<HTMLDivElement | null>) 
     // Initial capture
     snapshotRef.current = el.innerHTML;
 
+    let rafId: number;
     const observer = new MutationObserver(() => {
-      snapshotRef.current = el.innerHTML;
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        snapshotRef.current = el.innerHTML;
+      });
     });
 
     observer.observe(el, {
@@ -26,7 +30,10 @@ export function useSnapshot(contentRef: React.RefObject<HTMLDivElement | null>) 
       characterData: true,
     });
 
-    return () => observer.disconnect();
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
   }, [contentRef]);
 
   return snapshotRef;
