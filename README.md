@@ -127,7 +127,7 @@ A hook that captures DOM snapshots via `MutationObserver`. Returns a ref contain
 - **Fade animation** — Smooth fade-in via CSS animation
 - **Accessibility** — `aria-busy`, `aria-live="polite"`, `role="status"`, `inert` attribute
 - **Interaction blocking** — `pointer-events: none` + `inert` during loading
-- **Efficient snapshots** — `MutationObserver` captures only on DOM changes, not every render
+- **Efficient snapshots** — `MutationObserver` + `requestAnimationFrame` debounce: multiple DOM mutations within a frame result in only one `innerHTML` read
 - **Zero dependencies** — Only React 18+ as peer dependency
 - **Tree-shakeable** — ESM + CJS dual output
 
