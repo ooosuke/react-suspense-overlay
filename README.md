@@ -4,8 +4,10 @@ A small React component that displays a loading overlay on top of existing UI du
 
 ## Install
 
+> **Note:** This package is not yet published to npm. Install directly from GitHub:
+
 ```bash
-npm install react-suspense-overlay
+npm install github:ooosuke/react-suspense-overlay
 ```
 
 ## Usage
